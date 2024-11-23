@@ -43,7 +43,22 @@
         "command": "django-settings.helloWorld",
         "title": "Hello World"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Django Settings",
+      "properties": {
+        "django-settings.projectRoot": {
+          "type": "string",
+          "default": "",
+          "description": "Django project root directory (Example: `src`)"
+        },
+        "django-settings.settingsModule": {
+          "type": "string",
+          "default": "",
+          "description": "settings module path (Example: `projectname.settings`)"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
