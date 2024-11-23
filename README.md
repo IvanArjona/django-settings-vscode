@@ -24,5 +24,5 @@
 Commands accesible from the Command Palette (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>).
 
 ```
-Django Settings: 
+Django Settings:
 ```
