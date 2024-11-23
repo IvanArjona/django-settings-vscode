@@ -23,6 +23,7 @@
     "color": "#0C4B33",
     "theme": "dark"
   },
+  "icon": "images/icon.png",
   "license": "MIT",
   "categories": [
     "Other"
