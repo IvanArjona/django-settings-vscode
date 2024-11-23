@@ -1,0 +1,66 @@
+{
+  "name": "django-settings",
+  "displayName": "Django Settings",
+  "description": "A django settings autocompletion extension for Visual Studio Code",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "author": {
+    "name": "Iván Arjona",
+    "url": "https://iarjona.com"
+  },
+  "publisher": "IvanArjona",
+  "homepage": "https://github.com/IvanArjona/django-settings-vscode",
+  "bugs": {
+    "url": "https://github.com/IvanArjona/django-settings-vscode/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IvanArjona/django-settings-vscode.git"
+  },
+  "galleryBanner": {
+    "color": "#0C4B33",
+    "theme": "dark"
+  },
+  "license": "MIT",
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "python",
+    "django",
+    "settings",
+    "conf",
+    "configuration"
+  ],  
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "django-settings.helloWorld",
+        "title": "Hello World"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.95.0",
+    "@types/mocha": "^10.0.9",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.10.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "eslint": "^9.13.0",
+    "typescript": "^5.6.3",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1"
+  }
+}
