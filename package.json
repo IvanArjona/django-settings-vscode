@@ -36,7 +36,8 @@
     "configuration"
   ],
   "activationEvents": [
-    "onLanguage:python"
+    "onLanguage:python",
+    "onDebugResolve:python"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -60,6 +61,23 @@
           "description": "settings module path (Example: `projectname.settings`)"
         }
       }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "django-settings",
+          "title": "Django Settings",
+          "icon": "images/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "django-settings": [
+        {
+          "id": "django-settings.list",
+          "name": "Django Settings"
+        }
+      ]
     }
   },
   "scripts": {
