@@ -10,3 +10,14 @@ export const ALLOWED_SYMBOLS: vscode.SymbolKind[] = [
   vscode.SymbolKind.Array,
   vscode.SymbolKind.Object,
 ];
+
+export const SYMBOL_KIND_ICONS: Partial<{ [key in vscode.SymbolKind]: string }> = {
+  [vscode.SymbolKind.Method]: "method",
+  [vscode.SymbolKind.Field]: "field",
+  [vscode.SymbolKind.Enum]: "enum",
+  [vscode.SymbolKind.Function]: "function",
+  [vscode.SymbolKind.Variable]: "variable",
+  [vscode.SymbolKind.Constant]: "constant",
+  [vscode.SymbolKind.Array]: "array",
+  [vscode.SymbolKind.Object]: "object",
+};

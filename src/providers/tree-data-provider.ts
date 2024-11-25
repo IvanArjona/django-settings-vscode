@@ -1,11 +1,13 @@
 import * as vscode from "vscode";
 import { DjangoSettingsProvider } from "./settings";
 import type { SettingsFile, Subscriber } from "../types";
+import { SYMBOL_KIND_ICONS } from "../constants";
 
 class DjangoSettingsTreeItem extends vscode.TreeItem {
   constructor(private readonly settings: vscode.DocumentSymbol | SettingsFile) {
     super(settings.name, vscode.TreeItemCollapsibleState.None);
     this.collapsibleState = this.getCollapsibleState();
+    this.iconPath = new vscode.ThemeIcon(this.getIcon());
   }
 
   isSymbol(settings: any): settings is vscode.DocumentSymbol {
@@ -24,6 +26,13 @@ class DjangoSettingsTreeItem extends vscode.TreeItem {
     }
 
     return this.settings.symbols.map((symbol) => new DjangoSettingsTreeItem(symbol));
+  }
+
+  getIcon(): string {
+    if (this.isSymbol(this.settings)) {
+      return SYMBOL_KIND_ICONS[this.settings.kind] || "symbol-varialbe";
+    }
+    return "file";
   }
 }
 
