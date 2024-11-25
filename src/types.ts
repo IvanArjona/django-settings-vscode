@@ -5,3 +5,12 @@ export interface SettingsFile {
   file: vscode.Uri;
   symbols: vscode.DocumentSymbol[];
 }
+
+export interface Subscriber {
+  refresh: () => void;
+}
+
+export interface Publisher {
+  subscribe: (subscriber: Subscriber) => void;
+  notifySubscribers: () => void;
+}

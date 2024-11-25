@@ -1,12 +1,13 @@
 import * as vscode from "vscode";
 const path = require("path");
 
-import type { SettingsFile } from "../types";
+import type { Publisher, SettingsFile, Subscriber } from "../types";
 import { ALLOWED_SYMBOLS } from "../constants";
 
-export class DjangoSettingsProvider {
+export class DjangoSettingsProvider implements Publisher {
   #symbols: vscode.DocumentSymbol[] = [];
   #settings: SettingsFile[] = [];
+  #subscribers: Subscriber[] = [];
 
   public async refresh(): Promise<void> {
     const settingsFiles = await this.getSettingsFiles();
@@ -25,6 +26,7 @@ export class DjangoSettingsProvider {
 
     this.#symbols = symbols;
     this.#settings = settings;
+    this.notifySubscribers();
   }
 
   get symbols(): vscode.DocumentSymbol[] {
@@ -68,5 +70,14 @@ export class DjangoSettingsProvider {
       return [];
     }
     return symbols.filter((symbol) => ALLOWED_SYMBOLS.includes(symbol.kind));
+  }
+
+  subscribe(subscriber: Subscriber): void {
+    this.#subscribers.push(subscriber);
+    this.notifySubscribers();
+  }
+
+  notifySubscribers(): void {
+    this.#subscribers.forEach((subscriber) => subscriber.refresh());
   }
 }

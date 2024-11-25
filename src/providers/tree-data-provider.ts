@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { DjangoSettingsProvider } from "./settings";
-import type { SettingsFile } from "../types";
+import type { SettingsFile, Subscriber } from "../types";
 
 class DjangoSettingsTreeItem extends vscode.TreeItem {
   constructor(private readonly settings: vscode.DocumentSymbol | SettingsFile) {
@@ -27,7 +27,7 @@ class DjangoSettingsTreeItem extends vscode.TreeItem {
   }
 }
 
-export class DjangoSettingsTreeDataProvider implements vscode.TreeDataProvider<DjangoSettingsTreeItem> {
+export class DjangoSettingsTreeDataProvider implements vscode.TreeDataProvider<DjangoSettingsTreeItem>, Subscriber {
   constructor(private settingsProvider: DjangoSettingsProvider) {}
 
   private changeEvent = new vscode.EventEmitter<void>();

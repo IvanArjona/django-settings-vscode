@@ -83,7 +83,6 @@
         {
           "command": "django-settings.refresh",
           "id": "django-settings.list.refresh",
-          "alt": "Refresh Django Settings",
           "icon": "$(sync)",
           "when": "view == django-settings.list",
           "group": "navigation"
