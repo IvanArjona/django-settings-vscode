@@ -42,8 +42,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "django-settings.helloWorld",
-        "title": "Hello World"
+        "command": "django-settings.refresh",
+        "title": "Refresh Django Settings"
       }
     ],
     "configuration": {
@@ -75,6 +75,18 @@
         {
           "id": "django-settings.list",
           "name": "Django Settings"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "django-settings.refresh",
+          "id": "django-settings.list.refresh",
+          "alt": "Refresh Django Settings",
+          "icon": "$(sync)",
+          "when": "view == django-settings.list",
+          "group": "navigation"
         }
       ]
     }

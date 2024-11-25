@@ -8,7 +8,7 @@ export class DjangoSettingsProvider {
   #symbols: vscode.DocumentSymbol[] = [];
   #settings: SettingsFile[] = [];
 
-  public async sync(): Promise<void> {
+  public async refresh(): Promise<void> {
     const settingsFiles = await this.getSettingsFiles();
     const settings: SettingsFile[] = [];
     const symbols: vscode.DocumentSymbol[] = [];
