@@ -36,8 +36,7 @@
     "configuration"
   ],
   "activationEvents": [
-    "onLanguage:python",
-    "onDebugResolve:python"
+    "onLanguage:python"
   ],
   "main": "./out/extension.js",
   "contributes": {

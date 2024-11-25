@@ -1,22 +1,34 @@
 import * as vscode from "vscode";
 const path = require("path");
 
-import type { Setting, SettingsFile } from "../types";
+import type { SettingsFile } from "../types";
+import { ALLOWED_SYMBOLS } from "../constants";
 
 export class DjangoSettingsProvider {
+  #symbols: vscode.DocumentSymbol[] = [];
   #settings: SettingsFile[] = [];
 
   public async sync(): Promise<void> {
     const settingsFiles = await this.getSettingsFiles();
     const settings: SettingsFile[] = [];
+    const symbols: vscode.DocumentSymbol[] = [];
 
     for (const file of settingsFiles) {
-      const fileSettings = await this.getSettingsFromFile(file);
-      const fileName = path.basename(file.fsPath);
-      settings.push({ key: fileName, file, settings: fileSettings });
+      const documentSymbols = await this.getSymbolsFromFile(file);
+      const name = path.basename(file.fsPath);
+      if (!documentSymbols.length) {
+        continue;
+      }
+      symbols.push(...documentSymbols);
+      settings.push({ file, name, symbols: documentSymbols });
     }
 
+    this.#symbols = symbols;
     this.#settings = settings;
+  }
+
+  get symbols(): vscode.DocumentSymbol[] {
+    return this.#symbols;
   }
 
   get settings(): SettingsFile[] {
@@ -46,19 +58,15 @@ export class DjangoSettingsProvider {
     return settingsFiles;
   }
 
-  async getSettingsFromFile(uri: vscode.Uri): Promise<Setting[]> {
-    const document = await vscode.workspace.openTextDocument(uri);
-    const text = document.getText();
-    const settings: Setting[] = [];
+  async getSymbolsFromFile(uri: vscode.Uri): Promise<vscode.DocumentSymbol[]> {
+    const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+      "vscode.executeDocumentSymbolProvider",
+      uri,
+    );
 
-    const regex = /([A-Z_]+)\s*=\s*['"](.*)['"]/g;
-    let match;
-    while ((match = regex.exec(text))) {
-      const key = match[1];
-      const value = match[2];
-      settings.push({ key, value });
+    if (!symbols) {
+      return [];
     }
-
-    return settings;
+    return symbols.filter((symbol) => ALLOWED_SYMBOLS.includes(symbol.kind));
   }
 }

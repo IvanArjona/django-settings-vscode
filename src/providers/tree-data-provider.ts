@@ -1,37 +1,33 @@
 import * as vscode from "vscode";
 import { DjangoSettingsProvider } from "./settings";
-import type { Setting, SettingsFile } from "../types";
+import type { SettingsFile } from "../types";
 
 class DjangoSettingsTreeItem extends vscode.TreeItem {
-  constructor(private readonly settings: Setting | SettingsFile) {
-    super(settings.key, vscode.TreeItemCollapsibleState.None);
+  constructor(private readonly settings: vscode.DocumentSymbol | SettingsFile) {
+    super(settings.name, vscode.TreeItemCollapsibleState.None);
     this.collapsibleState = this.getCollapsibleState();
   }
 
-  isSetting(settings: any): settings is Setting {
-    return "value" in settings;
+  isSymbol(settings: any): settings is vscode.DocumentSymbol {
+    return "kind" in settings;
   }
 
   getCollapsibleState(): vscode.TreeItemCollapsibleState {
-    return this.isSetting(this.settings)
+    return this.isSymbol(this.settings)
       ? vscode.TreeItemCollapsibleState.None
       : vscode.TreeItemCollapsibleState.Collapsed;
   }
 
   getChildren(): DjangoSettingsTreeItem[] {
-    if (this.isSetting(this.settings)) {
+    if (this.isSymbol(this.settings)) {
       return [];
     }
 
-    return this.settings.settings.map(
-      (setting) => new DjangoSettingsTreeItem(setting),
-    );
+    return this.settings.symbols.map((symbol) => new DjangoSettingsTreeItem(symbol));
   }
 }
 
-export class DjangoSettingsTreeDataProvider
-  implements vscode.TreeDataProvider<DjangoSettingsTreeItem>
-{
+export class DjangoSettingsTreeDataProvider implements vscode.TreeDataProvider<DjangoSettingsTreeItem> {
   constructor(private settingsProvider: DjangoSettingsProvider) {}
 
   private changeEvent = new vscode.EventEmitter<void>();
@@ -50,9 +46,7 @@ export class DjangoSettingsTreeDataProvider
     }
 
     const settings = this.settingsProvider.settings;
-    return settings.map(
-      (settingFile) => new DjangoSettingsTreeItem(settingFile),
-    );
+    return settings.map((settingFile) => new DjangoSettingsTreeItem(settingFile));
   }
 
   refresh(): void {

@@ -1,12 +1,7 @@
 import * as vscode from "vscode";
 
-export interface Setting {
-  key: string;
-  value: string;
-}
-
 export interface SettingsFile {
-  key: string;
+  name: string;
   file: vscode.Uri;
-  settings: Setting[];
+  symbols: vscode.DocumentSymbol[];
 }

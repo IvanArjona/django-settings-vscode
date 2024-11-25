@@ -3,7 +3,7 @@ import { DjangoSettingsTreeDataProvider } from "./providers/tree-data-provider";
 import { DjangoSettingsProvider } from "./providers/settings";
 
 export async function activate(context: vscode.ExtensionContext) {
-  // const completionProvider = new DjangoSettingsCompletionProvider();
+  await initSleep();
   const settingsProvider = new DjangoSettingsProvider();
   await settingsProvider.sync();
 
@@ -16,3 +16,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 // This method is called when your extension is deactivated
 export async function deactivate() {}
+
+async function initSleep(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 5000));
+}
