@@ -2,8 +2,12 @@ import * as vscode from "vscode";
 
 export interface SettingsFile {
   name: string;
-  file: vscode.Uri;
+  uri: vscode.Uri;
   symbols: vscode.DocumentSymbol[];
+}
+
+export interface SettingsFiles {
+  [name: string]: SettingsFile;
 }
 
 export interface Subscriber {

@@ -2,16 +2,17 @@ import * as vscode from "vscode";
 import { DjangoSettingsTreeDataProvider } from "./providers/tree-data-provider";
 import { DjangoSettingsProvider } from "./providers/settings";
 
+const settingsProvider = new DjangoSettingsProvider();
+
 export async function activate(context: vscode.ExtensionContext) {
   await initSleep();
 
   // Initialize the settings provider
-  const settingsProvider = new DjangoSettingsProvider();
-  await settingsProvider.refresh();
+  await settingsProvider.setup();
 
   // Register the refresh command
   const refreshCommand = vscode.commands.registerCommand("django-settings.refresh", async () => {
-    await settingsProvider.refresh();
+    await settingsProvider.refreshAll();
   });
   context.subscriptions.push(refreshCommand);
 
@@ -24,7 +25,9 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export async function deactivate() {}
+export async function deactivate() {
+  await settingsProvider.deactivate();
+}
 
 async function initSleep(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 5000));

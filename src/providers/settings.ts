@@ -1,39 +1,54 @@
 import * as vscode from "vscode";
 const path = require("path");
 
-import type { Publisher, SettingsFile, Subscriber } from "../types";
+import type { Publisher, SettingsFiles, Subscriber } from "../types";
 import { ALLOWED_SYMBOLS } from "../constants";
 
 export class DjangoSettingsProvider implements Publisher {
-  #symbols: vscode.DocumentSymbol[] = [];
-  #settings: SettingsFile[] = [];
+  #settings: SettingsFiles = {};
   #subscribers: Subscriber[] = [];
+  #watchers: vscode.FileSystemWatcher[] = [];
 
-  public async refresh(): Promise<void> {
-    const settingsFiles = await this.getSettingsFiles();
-    const settings: SettingsFile[] = [];
-    const symbols: vscode.DocumentSymbol[] = [];
-
-    for (const file of settingsFiles) {
-      const documentSymbols = await this.getSymbolsFromFile(file);
-      const name = path.basename(file.fsPath);
+  public async refresh(uri: vscode.Uri): Promise<void> {
+    try {
+      const documentSymbols = await this.getSymbolsFromFile(uri);
+      const name = path.basename(uri.fsPath);
       if (!documentSymbols.length) {
-        continue;
+        return;
       }
-      symbols.push(...documentSymbols);
-      settings.push({ file, name, symbols: documentSymbols });
+      this.settings[name] = { name, uri, symbols: documentSymbols };
+      this.notifySubscribers();
+    } catch (error) {
+      console.error(error);
     }
-
-    this.#symbols = symbols;
-    this.#settings = settings;
-    this.notifySubscribers();
   }
 
-  get symbols(): vscode.DocumentSymbol[] {
-    return this.#symbols;
+  public async refreshAll(): Promise<void> {
+    const refreshPromises = Object.values(this.#settings).map(({ uri }) => this.refresh(uri));
+    await Promise.all(refreshPromises);
   }
 
-  get settings(): SettingsFile[] {
+  public async setup(): Promise<void> {
+    const projectRoot = await this.getProjectRoot();
+    const workspaceFolders = vscode.workspace.workspaceFolders || [];
+
+    for (const folder of workspaceFolders) {
+      const uri = folder.uri;
+      const relativePath = path.join(uri.fsPath, projectRoot);
+      const globPattern = new vscode.RelativePattern(relativePath, "**/settings{.py,/**/*.py}");
+
+      const watcher = vscode.workspace.createFileSystemWatcher(globPattern);
+      watcher.onDidChange(() => this.refresh(uri));
+      watcher.onDidCreate(() => this.refresh(uri));
+      watcher.onDidDelete(() => this.refresh(uri));
+
+      const files = await vscode.workspace.findFiles(globPattern);
+      const refreshPromises = files.map((file) => this.refresh(file));
+      await Promise.all(refreshPromises);
+    }
+  }
+
+  get settings(): SettingsFiles {
     return this.#settings;
   }
 
@@ -41,23 +56,6 @@ export class DjangoSettingsProvider implements Publisher {
     const config = vscode.workspace.getConfiguration("django-settings");
     const projectRoot = config.get<string>("projectRoot", "");
     return projectRoot;
-  }
-
-  async getSettingsFiles(): Promise<vscode.Uri[]> {
-    const projectRoot = await this.getProjectRoot();
-    const workspaceFolders = vscode.workspace.workspaceFolders || [];
-    const settingsFiles: vscode.Uri[] = [];
-
-    for (const folder of workspaceFolders) {
-      const workspacePath = folder.uri.fsPath;
-      const relativePath = path.join(workspacePath, projectRoot);
-      const files = await vscode.workspace.findFiles(
-        new vscode.RelativePattern(relativePath, "**/settings{.py,/**/*.py}"),
-      );
-      settingsFiles.push(...files);
-    }
-
-    return settingsFiles;
   }
 
   async getSymbolsFromFile(uri: vscode.Uri): Promise<vscode.DocumentSymbol[]> {
@@ -79,5 +77,10 @@ export class DjangoSettingsProvider implements Publisher {
 
   notifySubscribers(): void {
     this.#subscribers.forEach((subscriber) => subscriber.refresh());
+  }
+
+  async deactivate(): Promise<void> {
+    const disposePromises = this.#watchers.map((watcher) => watcher.dispose());
+    await Promise.all(disposePromises);
   }
 }

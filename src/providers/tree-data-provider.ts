@@ -46,7 +46,7 @@ export class DjangoSettingsTreeDataProvider implements vscode.TreeDataProvider<D
     }
 
     const settings = this.settingsProvider.settings;
-    return settings.map((settingFile) => new DjangoSettingsTreeItem(settingFile));
+    return Object.keys(settings).map((settingFile) => new DjangoSettingsTreeItem(settings[settingFile]));
   }
 
   refresh(): void {
