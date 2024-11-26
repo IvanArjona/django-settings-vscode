@@ -34,9 +34,9 @@ class DjangoSettingsTreeItem extends vscode.TreeItem {
 }
 
 export class DjangoSettingsTreeDataProvider implements vscode.TreeDataProvider<SettingsSymbol>, Subscriber {
-  constructor(private settingsProvider: DjangoSettingsProvider) {}
-
   private changeEvent = new vscode.EventEmitter<void>();
+
+  constructor(private settingsProvider: DjangoSettingsProvider) {}
 
   get onDidChangeTreeData(): vscode.Event<void> {
     return this.changeEvent.event;

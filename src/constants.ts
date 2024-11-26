@@ -23,3 +23,5 @@ export const SYMBOL_KIND_ICONS: Partial<{ [key in vscode.SymbolKind]: string }> 
   [vscode.SymbolKind.Array]: "array",
   [vscode.SymbolKind.Object]: "object",
 };
+
+export const PYTHON_DOCUMENT_SELECTOR: vscode.DocumentSelector = { language: "python", scheme: "file" };

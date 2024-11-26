@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import { DjangoSettingsTreeDataProvider } from "./providers/tree-data-provider";
 import { DjangoSettingsProvider } from "./providers/settings-provider";
+import { DjangoSettingsCompletionProvider } from "./providers/completion-provider";
+import { PYTHON_DOCUMENT_SELECTOR } from "./constants";
 
 const settingsProvider = new DjangoSettingsProvider();
 
@@ -20,8 +22,13 @@ export async function activate(context: vscode.ExtensionContext) {
   const treeDataProvider = new DjangoSettingsTreeDataProvider(settingsProvider);
   vscode.window.registerTreeDataProvider("django-settings.list", treeDataProvider);
 
+  // Register completion provider
+  const completionProvider = new DjangoSettingsCompletionProvider(settingsProvider);
+  vscode.languages.registerCompletionItemProvider(PYTHON_DOCUMENT_SELECTOR, completionProvider, ".");
+
   // Subscribe to changes in the settings provider
   settingsProvider.subscribe(treeDataProvider);
+  settingsProvider.subscribe(completionProvider);
 }
 
 // This method is called when your extension is deactivated
