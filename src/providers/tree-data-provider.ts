@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { DjangoSettingsProvider } from "./settings";
+import { DjangoSettingsProvider } from "./settings-provider";
 import type { SettingsSymbol, Subscriber } from "../types";
 import { SYMBOL_KIND_ICONS } from "../constants";
 

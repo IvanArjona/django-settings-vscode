@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { DjangoSettingsTreeDataProvider } from "./providers/tree-data-provider";
-import { DjangoSettingsProvider } from "./providers/settings";
+import { DjangoSettingsProvider } from "./providers/settings-provider";
 
 const settingsProvider = new DjangoSettingsProvider();
 
