@@ -1,15 +1,15 @@
 import * as vscode from "vscode";
 const path = require("path");
 
-import type { Publisher, SettingsFiles, Subscriber } from "../types";
+import type { Publisher, SettingsSymbol, Subscriber } from "../types";
 import { ALLOWED_SYMBOLS } from "../constants";
 
 export class DjangoSettingsProvider implements Publisher {
-  #settings: SettingsFiles = {};
+  #settings: SettingsSymbol[] = [];
   #subscribers: Subscriber[] = [];
   #watchers: vscode.FileSystemWatcher[] = [];
 
-  get settings(): SettingsFiles {
+  get settings(): SettingsSymbol[] {
     return this.#settings;
   }
 
@@ -20,21 +20,33 @@ export class DjangoSettingsProvider implements Publisher {
       if (!documentSymbols.length) {
         return;
       }
-      this.settings[name] = { name, uri, symbols: documentSymbols };
+      const fileRange = new vscode.Range(0, 0, 0, 0);
+      const fileSymbol: SettingsSymbol = {
+        name: name,
+        containerName: "",
+        detail: "",
+        kind: vscode.SymbolKind.File,
+        location: new vscode.Location(uri, fileRange),
+        children: documentSymbols,
+      };
+      fileSymbol.children = documentSymbols;
+      await this.removeSettingsFile(name, false);
+      this.#settings.push(fileSymbol);
       this.notifySubscribers();
     } catch (error) {
       console.error(error);
     }
   }
 
-  async removeSettingsFile(uri: vscode.Uri): Promise<void> {
-    const name = path.basename(uri.fsPath);
-    delete this.#settings[name];
-    this.notifySubscribers();
+  async removeSettingsFile(name: string, notify: boolean = true): Promise<void> {
+    this.#settings = this.#settings.filter((setting) => setting.name !== name);
+    if (notify) {
+      this.notifySubscribers();
+    }
   }
 
   public async refreshAll(): Promise<void> {
-    const refreshPromises = Object.values(this.#settings).map(({ uri }) => this.refresh(uri));
+    const refreshPromises = this.#settings.map((symbol) => this.refresh(symbol.location.uri));
     await Promise.all(refreshPromises);
   }
 
@@ -50,7 +62,9 @@ export class DjangoSettingsProvider implements Publisher {
       const watcher = vscode.workspace.createFileSystemWatcher(globPattern);
       watcher.onDidChange(async (eventUri: vscode.Uri) => await this.refresh(eventUri));
       watcher.onDidCreate(async (eventUri: vscode.Uri) => await this.refresh(eventUri));
-      watcher.onDidDelete(async (eventUri: vscode.Uri) => await this.removeSettingsFile(eventUri));
+      watcher.onDidDelete(
+        async (eventUri: vscode.Uri) => await this.removeSettingsFile(path.basename(eventUri.fsPath)),
+      );
 
       const files = await vscode.workspace.findFiles(globPattern);
       const refreshPromises = files.map((file) => this.refresh(file));
@@ -64,8 +78,8 @@ export class DjangoSettingsProvider implements Publisher {
     return projectRoot;
   }
 
-  async getSymbolsFromFile(uri: vscode.Uri): Promise<vscode.DocumentSymbol[]> {
-    const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+  async getSymbolsFromFile(uri: vscode.Uri): Promise<SettingsSymbol[]> {
+    const symbols = await vscode.commands.executeCommand<SettingsSymbol[]>(
       "vscode.executeDocumentSymbolProvider",
       uri,
     );

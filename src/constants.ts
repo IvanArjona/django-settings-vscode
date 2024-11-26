@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 export const ALLOWED_SYMBOLS: vscode.SymbolKind[] = [
+  vscode.SymbolKind.File,
   vscode.SymbolKind.Method,
   vscode.SymbolKind.Field,
   vscode.SymbolKind.Enum,
@@ -12,6 +13,7 @@ export const ALLOWED_SYMBOLS: vscode.SymbolKind[] = [
 ];
 
 export const SYMBOL_KIND_ICONS: Partial<{ [key in vscode.SymbolKind]: string }> = {
+  [vscode.SymbolKind.File]: "file",
   [vscode.SymbolKind.Method]: "method",
   [vscode.SymbolKind.Field]: "field",
   [vscode.SymbolKind.Enum]: "enum",

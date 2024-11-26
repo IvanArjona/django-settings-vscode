@@ -1,42 +1,27 @@
 import * as vscode from "vscode";
 import { DjangoSettingsProvider } from "./settings";
-import type { SettingsFile, Subscriber } from "../types";
+import type { SettingsSymbol, Subscriber } from "../types";
 import { SYMBOL_KIND_ICONS } from "../constants";
 
 class DjangoSettingsTreeItem extends vscode.TreeItem {
-  constructor(private readonly settings: vscode.DocumentSymbol | SettingsFile) {
+  constructor(private readonly settings: SettingsSymbol) {
     super(settings.name, vscode.TreeItemCollapsibleState.None);
     this.collapsibleState = this.getCollapsibleState();
     this.iconPath = new vscode.ThemeIcon(this.getIcon());
   }
 
-  isSymbol(settings: any): settings is vscode.DocumentSymbol {
-    return "kind" in settings;
-  }
-
   getCollapsibleState(): vscode.TreeItemCollapsibleState {
-    return this.isSymbol(this.settings)
+    return this.settings.children.length === 0
       ? vscode.TreeItemCollapsibleState.None
       : vscode.TreeItemCollapsibleState.Collapsed;
   }
 
-  getChildren(): DjangoSettingsTreeItem[] {
-    if (this.isSymbol(this.settings)) {
-      return [];
-    }
-
-    return this.settings.symbols.map((symbol) => new DjangoSettingsTreeItem(symbol));
-  }
-
   getIcon(): string {
-    if (this.isSymbol(this.settings)) {
-      return SYMBOL_KIND_ICONS[this.settings.kind] || "symbol-varialbe";
-    }
-    return "file";
+    return SYMBOL_KIND_ICONS[this.settings.kind] || "symbol-varialbe";
   }
 }
 
-export class DjangoSettingsTreeDataProvider implements vscode.TreeDataProvider<DjangoSettingsTreeItem>, Subscriber {
+export class DjangoSettingsTreeDataProvider implements vscode.TreeDataProvider<SettingsSymbol>, Subscriber {
   constructor(private settingsProvider: DjangoSettingsProvider) {}
 
   private changeEvent = new vscode.EventEmitter<void>();
@@ -45,17 +30,16 @@ export class DjangoSettingsTreeDataProvider implements vscode.TreeDataProvider<D
     return this.changeEvent.event;
   }
 
-  getTreeItem(element: DjangoSettingsTreeItem): vscode.TreeItem {
-    return element;
+  getTreeItem(element: SettingsSymbol): vscode.TreeItem {
+    return new DjangoSettingsTreeItem(element);
   }
 
-  getChildren(element?: DjangoSettingsTreeItem): DjangoSettingsTreeItem[] {
+  getChildren(element?: SettingsSymbol): SettingsSymbol[] {
     if (element !== undefined) {
-      return element.getChildren();
+      return element.children;
     }
 
-    const settings = this.settingsProvider.settings;
-    return Object.keys(settings).map((settingFile) => new DjangoSettingsTreeItem(settings[settingFile]));
+    return this.settingsProvider.settings;
   }
 
   refresh(): void {
