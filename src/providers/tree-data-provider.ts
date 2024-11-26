@@ -6,8 +6,20 @@ import { SYMBOL_KIND_ICONS } from "../constants";
 class DjangoSettingsTreeItem extends vscode.TreeItem {
   constructor(private readonly settings: SettingsSymbol) {
     super(settings.name, vscode.TreeItemCollapsibleState.None);
+
     this.collapsibleState = this.getCollapsibleState();
     this.iconPath = new vscode.ThemeIcon(this.getIcon());
+    vscode.commands.executeCommand("vscode.open", settings.location);
+    this.command = {
+      command: "vscode.open",
+      title: "Open",
+      arguments: [
+        settings.location.uri,
+        {
+          selection: settings.location.range,
+        },
+      ],
+    };
   }
 
   getCollapsibleState(): vscode.TreeItemCollapsibleState {
