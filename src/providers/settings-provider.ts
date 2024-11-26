@@ -13,6 +13,28 @@ export class DjangoSettingsProvider implements Publisher {
     return this.#settings;
   }
 
+  get flatSettings(): SettingsSymbol[] {
+    const flatSettings: SettingsSymbol[] = [];
+
+    const flatten = (symbol: SettingsSymbol) => {
+      if (symbol.kind !== vscode.SymbolKind.File) {
+        flatSettings.push(symbol);
+      }
+      symbol.children.forEach((child) => flatten(child));
+    };
+
+    this.#settings.forEach((symbol) => flatten(symbol));
+    return flatSettings;
+  }
+
+  get(name: string): SettingsSymbol | SettingsSymbol[] | undefined {
+    const symbols = this.flatSettings.filter((symbol) => symbol.name === name);
+    if (symbols.length === 0) {
+      return undefined;
+    }
+    return symbols.length > 1 ? symbols : symbols[0];
+  }
+
   async refresh(uri: vscode.Uri): Promise<void> {
     try {
       const documentSymbols = await this.getSymbolsFromFile(uri);

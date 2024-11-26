@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { DjangoSettingsProvider } from "./settings-provider";
-import { SettingsSymbol, Subscriber } from "../types";
+import type { SettingsSymbol, Subscriber } from "../types";
 
 export class DjangoSettingsCompletionProvider implements vscode.CompletionItemProvider, Subscriber {
   #completionItems: vscode.CompletionItem[] = [];

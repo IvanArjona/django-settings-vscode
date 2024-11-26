@@ -3,6 +3,7 @@ import { DjangoSettingsTreeDataProvider } from "./providers/tree-data-provider";
 import { DjangoSettingsProvider } from "./providers/settings-provider";
 import { DjangoSettingsCompletionProvider } from "./providers/completion-provider";
 import { PYTHON_DOCUMENT_SELECTOR } from "./constants";
+import { DjangoSettingsDefinitionProvider } from "./providers/definition-provider";
 
 const settingsProvider = new DjangoSettingsProvider();
 
@@ -25,6 +26,10 @@ export async function activate(context: vscode.ExtensionContext) {
   // Register completion provider
   const completionProvider = new DjangoSettingsCompletionProvider(settingsProvider);
   vscode.languages.registerCompletionItemProvider(PYTHON_DOCUMENT_SELECTOR, completionProvider, ".");
+
+  // Register definition provider
+  const definitionProvider = new DjangoSettingsDefinitionProvider(settingsProvider);
+  vscode.languages.registerDefinitionProvider(PYTHON_DOCUMENT_SELECTOR, definitionProvider);
 
   // Subscribe to changes in the settings provider
   settingsProvider.subscribe(treeDataProvider);
