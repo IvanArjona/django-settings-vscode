@@ -9,7 +9,11 @@ export class DjangoSettingsProvider implements Publisher {
   #subscribers: Subscriber[] = [];
   #watchers: vscode.FileSystemWatcher[] = [];
 
-  public async refresh(uri: vscode.Uri): Promise<void> {
+  get settings(): SettingsFiles {
+    return this.#settings;
+  }
+
+  async refresh(uri: vscode.Uri): Promise<void> {
     try {
       const documentSymbols = await this.getSymbolsFromFile(uri);
       const name = path.basename(uri.fsPath);
@@ -21,6 +25,12 @@ export class DjangoSettingsProvider implements Publisher {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  async removeSettingsFile(uri: vscode.Uri): Promise<void> {
+    const name = path.basename(uri.fsPath);
+    delete this.#settings[name];
+    this.notifySubscribers();
   }
 
   public async refreshAll(): Promise<void> {
@@ -38,18 +48,14 @@ export class DjangoSettingsProvider implements Publisher {
       const globPattern = new vscode.RelativePattern(relativePath, "**/settings{.py,/**/*.py}");
 
       const watcher = vscode.workspace.createFileSystemWatcher(globPattern);
-      watcher.onDidChange(() => this.refresh(uri));
-      watcher.onDidCreate(() => this.refresh(uri));
-      watcher.onDidDelete(() => this.refresh(uri));
+      watcher.onDidChange(async (eventUri: vscode.Uri) => await this.refresh(eventUri));
+      watcher.onDidCreate(async (eventUri: vscode.Uri) => await this.refresh(eventUri));
+      watcher.onDidDelete(async (eventUri: vscode.Uri) => await this.removeSettingsFile(eventUri));
 
       const files = await vscode.workspace.findFiles(globPattern);
       const refreshPromises = files.map((file) => this.refresh(file));
       await Promise.all(refreshPromises);
     }
-  }
-
-  get settings(): SettingsFiles {
-    return this.#settings;
   }
 
   async getProjectRoot(): Promise<string> {
