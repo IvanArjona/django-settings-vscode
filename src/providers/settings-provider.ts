@@ -8,7 +8,7 @@ export class DjangoSettingsProvider implements Publisher {
   #settings: SettingsSymbol[] = [];
   #settingsMap: Map<string, SettingsSymbol[]> = new Map();
   #subscribers: Subscriber[] = [];
-  #watchers: vscode.FileSystemWatcher[] = [];
+  #watchers: vscode.Disposable[] = [];
 
   get settings(): SettingsSymbol[] {
     return this.#settings;
@@ -81,12 +81,24 @@ export class DjangoSettingsProvider implements Publisher {
       const pattern = await this.getPattern();
       const globPattern = new vscode.RelativePattern(relativePath, pattern);
 
+      // Watch for settings file changes
       const watcher = vscode.workspace.createFileSystemWatcher(globPattern);
       watcher.onDidChange(async (eventUri: vscode.Uri) => await this.refresh(eventUri));
       watcher.onDidCreate(async (eventUri: vscode.Uri) => await this.refresh(eventUri));
       watcher.onDidDelete(
         async (eventUri: vscode.Uri) => await this.removeSettingsFile(path.basename(eventUri.fsPath).split(".")[0]),
       );
+
+      // Watch for vscode configuration changes
+      const onDidChangeConfigurationWatcher = vscode.workspace.onDidChangeConfiguration(async (event) => {
+        if (event.affectsConfiguration("django-settings")) {
+          await this.deactivate();
+          await this.setup();
+        }
+      });
+
+      this.#watchers.push(watcher);
+      this.#watchers.push(onDidChangeConfigurationWatcher);
 
       const files = await vscode.workspace.findFiles(globPattern);
       const refreshPromises = files.map((file) => this.refresh(file));
