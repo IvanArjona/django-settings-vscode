@@ -78,7 +78,8 @@ export class DjangoSettingsProvider implements Publisher {
     for (const folder of workspaceFolders) {
       const uri = folder.uri;
       const relativePath = path.join(uri.fsPath, projectRoot);
-      const globPattern = new vscode.RelativePattern(relativePath, "**/settings{.py,/**/*.py}");
+      const pattern = await this.getPattern();
+      const globPattern = new vscode.RelativePattern(relativePath, pattern);
 
       const watcher = vscode.workspace.createFileSystemWatcher(globPattern);
       watcher.onDidChange(async (eventUri: vscode.Uri) => await this.refresh(eventUri));
@@ -97,6 +98,13 @@ export class DjangoSettingsProvider implements Publisher {
     const config = vscode.workspace.getConfiguration("django-settings");
     const projectRoot = config.get<string>("projectRoot", "");
     return projectRoot;
+  }
+
+  async getPattern(): Promise<string> {
+    const config = vscode.workspace.getConfiguration("django-settings");
+    const settingsModule = config.get<string>("settingsModule", "settings");
+    const settingsModulePath = settingsModule.replace(/\./g, "/");
+    return `**/${settingsModulePath}{.py,/**/*.py}`;
   }
 
   async getSymbolsFromFile(uri: vscode.Uri): Promise<SettingsSymbol[]> {
