@@ -21,7 +21,7 @@ export class DjangoSettingsCompletionProvider implements vscode.CompletionItemPr
   }
 
   private getCompletionItems(symbols: SettingsSymbol[]): vscode.CompletionItem[] {
-    const completionItems = [];
+    const completionItems: vscode.CompletionItem[] = [];
 
     for (const symbol of symbols) {
       if (symbol.kind !== vscode.SymbolKind.File) {
@@ -34,7 +34,19 @@ export class DjangoSettingsCompletionProvider implements vscode.CompletionItemPr
     return completionItems;
   }
 
+  private filterDuplicates(completionItems: vscode.CompletionItem[]): vscode.CompletionItem[] {
+    const included = new Set<string | vscode.CompletionItemLabel>();
+    return completionItems.filter((item) => {
+      if (included.has(item.label)) {
+        return false;
+      }
+      included.add(item.label);
+      return true;
+    });
+  }
+
   refresh(): void {
-    this.#completionItems = this.getCompletionItems(this.settingsProvider.settings);
+    const completionItems = this.getCompletionItems(this.settingsProvider.settings);
+    this.#completionItems = this.filterDuplicates(completionItems);
   }
 }
