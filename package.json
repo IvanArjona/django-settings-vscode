@@ -43,7 +43,9 @@
     "commands": [
       {
         "command": "django-settings.refresh",
-        "title": "Refresh Django Settings"
+        "title": "Refresh Django Settings",
+        "category": "Django Settings",
+        "icon": "$(sync)"
       }
     ],
     "configuration": {
@@ -83,7 +85,6 @@
         {
           "command": "django-settings.refresh",
           "id": "django-settings.list.refresh",
-          "icon": "$(sync)",
           "when": "view == django-settings.list",
           "group": "navigation"
         }
