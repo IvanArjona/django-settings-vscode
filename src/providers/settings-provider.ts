@@ -6,6 +6,7 @@ import { ALLOWED_SYMBOLS } from "../constants";
 
 export class DjangoSettingsProvider implements Publisher {
   #settings: SettingsSymbol[] = [];
+  #settingsMap: Map<string, SettingsSymbol[]> = new Map();
   #subscribers: Subscriber[] = [];
   #watchers: vscode.FileSystemWatcher[] = [];
 
@@ -13,55 +14,53 @@ export class DjangoSettingsProvider implements Publisher {
     return this.#settings;
   }
 
-  get flatSettings(): SettingsSymbol[] {
-    const flatSettings: SettingsSymbol[] = [];
-
-    const flatten = (symbol: SettingsSymbol) => {
-      if (symbol.kind !== vscode.SymbolKind.File) {
-        flatSettings.push(symbol);
-      }
-      symbol.children.forEach((child) => flatten(child));
-    };
-
-    this.#settings.forEach((symbol) => flatten(symbol));
-    return flatSettings;
-  }
-
   get(name: string): SettingsSymbol | SettingsSymbol[] | undefined {
-    const symbols = this.flatSettings.filter((symbol) => symbol.name === name);
-    if (symbols.length === 0) {
+    const symbols = this.#settingsMap.get(name);
+    if (symbols === undefined) {
       return undefined;
     }
-    return symbols.length > 1 ? symbols : symbols[0];
+    return symbols.length === 1 ? symbols[0] : symbols;
   }
 
   async refresh(uri: vscode.Uri): Promise<void> {
-    try {
-      const documentSymbols = await this.getSymbolsFromFile(uri);
-      const name = path.basename(uri.fsPath);
-      if (!documentSymbols.length) {
-        return;
-      }
-      const fileRange = new vscode.Range(0, 0, 0, 0);
-      const fileSymbol: SettingsSymbol = {
-        name: name,
-        containerName: "",
-        detail: "",
-        kind: vscode.SymbolKind.File,
-        location: new vscode.Location(uri, fileRange),
-        children: documentSymbols,
-      };
-      fileSymbol.children = documentSymbols;
-      await this.removeSettingsFile(name, false);
-      this.#settings.push(fileSymbol);
-      this.notifySubscribers();
-    } catch (error) {
-      console.error(error);
+    const documentSymbols = await this.getSymbolsFromFile(uri);
+    const name = path.basename(uri.fsPath);
+    if (!documentSymbols.length) {
+      return;
     }
+    const fileRange = new vscode.Range(0, 0, 0, 0);
+    const fileSymbol: SettingsSymbol = {
+      name: name,
+      containerName: "",
+      detail: "",
+      kind: vscode.SymbolKind.File,
+      location: new vscode.Location(uri, fileRange),
+      children: documentSymbols,
+    };
+    fileSymbol.children = documentSymbols;
+
+    await this.removeSettingsFile(name, false);
+    this.#settings.push(fileSymbol);
+    await this.setSettingsMap();
+    this.notifySubscribers();
+  }
+
+  async setSettingsMap(): Promise<void> {
+    const settingsMap = new Map<string, SettingsSymbol[]>();
+
+    for (const setting of this.#settings) {
+      for (const child of setting.children) {
+        const symbols = settingsMap.get(child.name) || [];
+        settingsMap.set(child.name, [...symbols, child]);
+      }
+    }
+
+    this.#settingsMap = settingsMap;
   }
 
   async removeSettingsFile(name: string, notify: boolean = true): Promise<void> {
     this.#settings = this.#settings.filter((setting) => setting.name !== name);
+
     if (notify) {
       this.notifySubscribers();
     }
