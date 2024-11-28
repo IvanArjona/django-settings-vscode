@@ -37,6 +37,19 @@
 
 <br>
 
+## Configuration
+
+Add the following configuration to your Visual Studio Code `settings.json` file.
+
+```json
+{
+  // Django project root directory
+  "django-settings.projectRoot": "src/",
+  // Django settings module
+  "django-settings.settingsModule": "mysite.settings"
+}
+```
+
 ## Features
 
 - Autocompletion for Django settings starting with `settings.`.
