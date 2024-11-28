@@ -1,9 +1,9 @@
+.gitignore
+.yarnrc
 .vscode/**
 .vscode-test/**
 src/**
-.gitignore
-.yarnrc
-vsc-extension-quickstart.md
+*.vsix
 **/tsconfig.json
 **/eslint.config.mjs
 **/*.map
