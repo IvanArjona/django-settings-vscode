@@ -94,7 +94,7 @@ export class DjangoSettingsProvider implements Publisher {
 
       // Watch for vscode configuration changes
       const onDidChangeConfigurationWatcher = vscode.workspace.onDidChangeConfiguration(async (event) => {
-        if (event.affectsConfiguration("django-settings")) {
+        if (event.affectsConfiguration("django-settings-vscode")) {
           await this.deactivate();
           await this.setup();
         }
@@ -110,14 +110,14 @@ export class DjangoSettingsProvider implements Publisher {
   }
 
   async getProjectRoot(): Promise<string> {
-    const config = vscode.workspace.getConfiguration("django-settings");
+    const config = vscode.workspace.getConfiguration("django-settings-vscode");
     const projectRoot = config.get<string>("projectRoot", "");
     return projectRoot;
   }
 
   async getPattern(): Promise<string> {
-    const config = vscode.workspace.getConfiguration("django-settings");
-    const settingsModule = config.get<string>("settingsModule", "settings");
+    const config = vscode.workspace.getConfiguration("django-settings-vscode");
+    const settingsModule = config.get<string>("settingsModule", "") || "settings";
     const settingsModulePath = settingsModule.replace(/\./g, "/");
     return `**/${settingsModulePath}{.py,/**/*.py}`;
   }

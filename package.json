@@ -1,5 +1,5 @@
 {
-  "name": "django-settings",
+  "name": "django-settings-vscode",
   "displayName": "Django Settings",
   "description": "A django settings autocompletion extension for Visual Studio Code",
   "version": "1.0.0",
@@ -42,7 +42,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "django-settings.refresh",
+        "command": "django-settings-vscode.refresh",
         "title": "Refresh Django Settings",
         "category": "Django Settings",
         "icon": "$(sync)"
@@ -51,12 +51,12 @@
     "configuration": {
       "title": "Django Settings",
       "properties": {
-        "django-settings.projectRoot": {
+        "django-settings-vscode.projectRoot": {
           "type": "string",
           "default": "",
           "description": "Django project root directory (Example: `src`)"
         },
-        "django-settings.settingsModule": {
+        "django-settings-vscode.settingsModule": {
           "type": "string",
           "default": "",
           "description": "settings module path (Example: `projectname.settings`)"
@@ -66,16 +66,16 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "django-settings",
+          "id": "django-settings-vscode",
           "title": "Django Settings",
           "icon": "images/icon.png"
         }
       ]
     },
     "views": {
-      "django-settings": [
+      "django-settings-vscode": [
         {
-          "id": "django-settings.list",
+          "id": "django-settings-vscode.list",
           "name": "Django Settings"
         }
       ]
@@ -83,9 +83,9 @@
     "menus": {
       "view/title": [
         {
-          "command": "django-settings.refresh",
-          "id": "django-settings.list.refresh",
-          "when": "view == django-settings.list",
+          "command": "django-settings-vscode.refresh",
+          "id": "django-settings-vscode.list.refresh",
+          "when": "view == django-settings-vscode.list",
           "group": "navigation"
         }
       ]

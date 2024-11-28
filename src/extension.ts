@@ -14,14 +14,14 @@ export async function activate(context: vscode.ExtensionContext) {
   await settingsProvider.setup();
 
   // Register the refresh command
-  const refreshCommand = vscode.commands.registerCommand("django-settings.refresh", async () => {
+  const refreshCommand = vscode.commands.registerCommand("django-settings-vscode.refresh", async () => {
     await settingsProvider.refreshAll();
   });
   context.subscriptions.push(refreshCommand);
 
   // Register the tree view
   const treeDataProvider = new DjangoSettingsTreeDataProvider(settingsProvider);
-  vscode.window.registerTreeDataProvider("django-settings.list", treeDataProvider);
+  vscode.window.registerTreeDataProvider("django-settings-vscode.list", treeDataProvider);
 
   // Register completion provider
   const completionProvider = new DjangoSettingsCompletionProvider(settingsProvider);
