@@ -13,6 +13,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-from django.conf import settings
-
-settings.DEBUG

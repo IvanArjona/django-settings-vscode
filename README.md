@@ -26,6 +26,11 @@
 </div>
 
 <div align="center">
+  <h3>Definition preview</h3>
+  <img src="images/definition-preview.png">
+</div>
+
+<div align="center">
   <h3>Activity bar</h3>
   <img src="images/tree-view.png">
 </div>
