@@ -26,6 +26,7 @@ export class DjangoSettingsCompletionProvider implements vscode.CompletionItemPr
     for (const symbol of symbols) {
       if (symbol.kind !== vscode.SymbolKind.File) {
         const completionItem = new vscode.CompletionItem(symbol.name, vscode.CompletionItemKind.Variable);
+        completionItem.detail = symbol.detail;
         completionItems.push(completionItem);
       }
       completionItems.push(...this.getCompletionItems(symbol.children));
