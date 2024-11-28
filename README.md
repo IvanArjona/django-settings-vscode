@@ -41,12 +41,12 @@
 
 Add the following configuration to your Visual Studio Code `settings.json` file.
 
-```json
+```json5
 {
   // Django project root directory
   "django-settings.projectRoot": "src/",
   // Django settings module
-  "django-settings.settingsModule": "mysite.settings"
+  "django-settings.settingsModule": "mysite.settings",
 }
 ```
 
