@@ -2,7 +2,7 @@
   "name": "django-settings",
   "displayName": "Django Settings",
   "description": "A django settings autocompletion extension for Visual Studio Code",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.95.0"
   },
