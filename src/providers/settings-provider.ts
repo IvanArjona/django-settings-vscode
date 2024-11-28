@@ -72,6 +72,9 @@ export class DjangoSettingsProvider implements Publisher {
   }
 
   public async setup(): Promise<void> {
+    this.#settings = [];
+    this.#settingsMap = new Map();
+
     const projectRoot = await this.getProjectRoot();
     const workspaceFolders = vscode.workspace.workspaceFolders || [];
 
@@ -143,5 +146,6 @@ export class DjangoSettingsProvider implements Publisher {
   async deactivate(): Promise<void> {
     const disposePromises = this.#watchers.map((watcher) => watcher.dispose());
     await Promise.all(disposePromises);
+    this.#watchers = [];
   }
 }
