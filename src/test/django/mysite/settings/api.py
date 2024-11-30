@@ -1,3 +1,5 @@
+from .core import DEBUG
+
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
@@ -6,4 +8,4 @@ REST_FRAMEWORK = {
         "rest_framework.parsers.JSONParser",
     ],
 }
-DEBUG = False
+DEBUG = False  # noqa: F811

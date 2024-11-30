@@ -19,7 +19,10 @@ export class DjangoSettingsProvider implements Publisher {
     if (symbols === undefined) {
       return undefined;
     }
-    return symbols.length === 1 ? symbols[0] : symbols;
+    if (symbols.length === 1) {
+      return symbols[0];
+    }
+    return symbols.filter((symbol) => !symbol.detail.startsWith("instance"));
   }
 
   async refresh(uri: vscode.Uri): Promise<void> {
